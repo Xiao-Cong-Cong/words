@@ -3,16 +3,18 @@
     <div align="center">
       <h1>Words List</h1>
     </div>
+    <div class="words-list">
       <ul>
-        <li v-for="word in sortedWords" :key="word.id">
+        <li v-for="word in displayWords" :key="word.id">
           <span class="words-list-word">{{ word.word }}</span>
-          <span class="words-list-plus-button">
-            <button @click="addWordCount(word.id)">+</button>
+          <span>
+            <button @click="reduceWordCount(word.id)"> √ </button>
             <!-- {{ word.count }} -->
           </span>
         </li>
       </ul>
-    <div align="center">
+    </div>
+    <div align="center" class="words-list-add">
       <input v-model="newWord" @keyup.enter="addNewWord">
     </div>
   </div>
@@ -36,13 +38,16 @@
         function cmp(a, b) {
           return b.count - a.count;
         }
+      },
+      displayWords: function() {
+        return this.sortedWords.filter(word => word.count > 0);
       }
     },
     methods: {
       update() {
-        this.words = [];
         api.getWords().then(({data}) => {
           if(data.success) {
+            this.words = [];
             this.words = data.words;
           }
         })
@@ -55,12 +60,12 @@
           }
         });
       },
-      addWordCount(idx) {
-        api.addWordCount({id: idx}).then(({data}) => {
+      reduceWordCount(idx) {
+        api.reduceWordCount({id: idx}).then(({data}) => {
           if(data.success) {
             for( var i = 0; i < this.words.length; i++) {
               if(this.words[i].id === idx) {
-                this.words[i].count++;
+                this.words[i].count--;
               }
             }
           }
@@ -82,8 +87,17 @@
     margin: 0 auto;
   }
 
+  .words-list {
+    overflow: scroll;
+    max-height: 500px;
+  }
+
   .words-list-word {
     width: 160px;
     display: inline-block;
+  }
+
+  .words-list-add {
+    padding-top: 15px;
   }
 </style>

@@ -12,6 +12,9 @@ export default {
     addWordCount(data) {
         return service.post('/addWordCount', data);
     },
+    reduceWordCount(data) {
+        return service.post('/reduceWordCount', data);
+    },
     getWords() {
         return service.get('/words');
     },

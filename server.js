@@ -7,27 +7,36 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.post('/api/addNewWord', (req, res) => {
-    Word.find().sort({"id": -1}).limit(1).exec((err, doc) => {
-        if(err) console.log(err);
-        // console.log(doc);
-        // console.log(doc[0].id);
-        if(doc[0]) {
-            var nextId = doc[0].id + 1;
-        } else {
-            var nextId = 1;
-        }
-        console.log(nextId);
-        var newWord = new Word({
-            id: nextId,
-            word: req.body.word,
-            count: 1
-        });
-        newWord.save((err) => {
-            if(err) console.log(err);
-            res.json({
-                success: true
+    Word.findOne({word: req.body.word}, (err, doc) => {
+        if(doc) {
+            Word.updateOne({word: req.body.word}, {$inc: { count: 1 }}, (err, doc) => {
+                if(err) console.log(err);
+                res.json({
+                    success: true
+                })
             })
-        })
+        } else {
+            Word.find().sort({"id": -1}).limit(1).exec((err, doc) => {
+                if(err) console.log(err);
+                if(doc[0]) {
+                    var nextId = doc[0].id + 1;
+                } else {
+                    var nextId = 1;
+                }
+                console.log(nextId);
+                var newWord = new Word({
+                    id: nextId,
+                    word: req.body.word,
+                    count: 1
+                });
+                newWord.save((err) => {
+                    if(err) console.log(err);
+                    res.json({
+                        success: true
+                    })
+                })
+            })
+        }
     })
 });
 
@@ -39,6 +48,15 @@ app.post('/api/addWordCount', (req, res) => {
         })
     })
 });
+
+app.post('/api/reduceWordCount', (req, res) => {
+    Word.updateOne({id: req.body.id}, {$inc: { count: -1 }}, (err, doc) => {
+        if(err) console.log(err);
+        res.json({
+            success: true
+        })
+    })
+})
 
 app.get('/api/words', (req, res) => {
     Word.find({}, (err, docs) => {
