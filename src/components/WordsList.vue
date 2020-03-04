@@ -19,84 +19,58 @@
 </template>
 
 <script>
-export default {
-  name: 'WordsList',
-  data() {
-    return {
-      words: [
-        {
-          id: 1,
-          word: 'yelp',
-          count: 1,
-        },
-        {
-          id: 2,
-          word: 'yawn',
-          count: 1,
-        },
-        {
-          id: 3,
-          word: 'wrinkle',
-          count: 1,
-        },
-        {
-          id: 4,
-          word: 'wring',
-          count: 1,
-        },
-        {
-          id: 5,
-          word: 'wither',
-          count: 1
-        },
-        {
-          id: 6,
-          word: 'wit',
-          count: 1
-        },
-        {
-          id: 7,
-          word: 'wholesome',
-          count: 1
-        },
-        {
-          id: 8,
-          word: 'whittle',
-          count: 1
-        }
-      ],
-      newWord: '',
-      idx: 9
-    }
-  },
-  computed: {
-    sortedWords: function() {
-      var tmp = this.words;
-      return tmp.sort(cmp);
-
-      function cmp(a, b) {
-        return b.count - a.count;
+  import api from '../axios';
+  export default {
+    name: 'WordsList',
+    data() {
+      return {
+        words: [],
+        newWord: ''
       }
-    }
-  },
-  methods: {
-    addNewWord() {
-      this.words.push({
-        id: this.idx++,
-        word: this.newWord,
-        count: 1
-      });
-      this.newWord = '';
     },
-    addWordCount(idx) {
-      for( var i = 0; i < this.words.length; i++) {
-        if(this.words[i].id === idx) {
-          this.words[i].count++;
+    computed: {
+      sortedWords: function() {
+        var tmp = this.words;
+        return tmp.sort(cmp);
+
+        function cmp(a, b) {
+          return b.count - a.count;
         }
       }
+    },
+    methods: {
+      update() {
+        this.words = [];
+        api.getWords().then(({data}) => {
+          if(data.success) {
+            this.words = data.words;
+          }
+        })
+      },
+      addNewWord() {
+        api.addNewWord({word: this.newWord}).then(({data}) => {
+          if(data.success) {
+            this.newWord = '';
+            this.update();
+          }
+        });
+      },
+      addWordCount(idx) {
+        api.addWordCount({id: idx}).then(({data}) => {
+          if(data.success) {
+            for( var i = 0; i < this.words.length; i++) {
+              if(this.words[i].id === idx) {
+                this.words[i].count++;
+              }
+            }
+          }
+        })
+      }
+    },
+    mounted() {
+      this.update();
     }
   }
-}
 </script>
 
 <style scoped>
