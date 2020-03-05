@@ -36,6 +36,7 @@
         return tmp.sort(cmp);
 
         function cmp(a, b) {
+          if(a.count === b.count) return a.id - b.id;
           return b.count - a.count;
         }
       },
