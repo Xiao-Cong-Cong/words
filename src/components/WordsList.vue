@@ -57,6 +57,8 @@
           if(data.success) {
             this.newWord = '';
             this.update();
+            var ele = document.getElementsByClassName("words-list")[0];
+            ele.scrollTop = ele.scrollHeight;
           }
         });
       },
